@@ -61,5 +61,23 @@ public class HeapFileOrganiser {
 				);
 	}
 	
+	public void placeRecord() {
+		Record currEntry = recordList.get(0);
+		
+		String entry = 
+				bc.intToBinaryString(currEntry.getID()) +
+				bc.intToBinaryString(currEntry.getSensor_ID()) +
+				bc.stringToBinary(currEntry.getDate_Time()) +
+				bc.intToBinaryString(currEntry.getYear()) +
+				bc.stringToBinary(currEntry.getMonth()) +
+				bc.intToBinaryString(currEntry.getMdate()) +
+				bc.stringToBinary(currEntry.getDay()) +
+				bc.intToBinaryString(currEntry.getTime()) +
+				bc.stringToBinary(currEntry.getSensor_name()) +
+				bc.intToBinaryString(currEntry.getHourly_Counts());
+		
+		System.out.println(entry);
+	}
+	
 	
 }
