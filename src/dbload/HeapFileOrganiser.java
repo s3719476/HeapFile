@@ -1,5 +1,6 @@
 package dbload;
 
+import java.io.InputStream;
 import java.util.Vector;
 
 public class HeapFileOrganiser {
@@ -12,6 +13,9 @@ public class HeapFileOrganiser {
 	private DataLoader dl;
 	
 	private Vector<Record> recordList = new Vector<Record>();
+	private Vector<Page> pageList = new Vector<Page>();
+	
+	public InputStream is;
 	
 //	private Vector<Pedestrian> pedestrainList = new Vector<Pedestrian>();
 //	private Vector<Sensor> sensorList = new Vector<Sensor>();
@@ -33,8 +37,8 @@ public class HeapFileOrganiser {
 		
 		String line = csvr.readNextLine();
 		while (line != null) {
-			System.out.println("Loading entry number: " + counter);
 			++counter;
+			System.out.println("Loading entry number: " + counter);
 			
 			storeEntry(line);
 			
@@ -61,22 +65,72 @@ public class HeapFileOrganiser {
 				);
 	}
 	
-	public void placeRecord() {
-		Record currEntry = recordList.get(0);
+	public void recordsToPages() {
+		int pageByteSize = 2048;
 		
-		String entry = 
-				bc.intToBinaryString(currEntry.getID()) +
-				bc.intToBinaryString(currEntry.getSensor_ID()) +
-				bc.stringToBinary(currEntry.getDate_Time()) +
-				bc.intToBinaryString(currEntry.getYear()) +
-				bc.stringToBinary(currEntry.getMonth()) +
-				bc.intToBinaryString(currEntry.getMdate()) +
-				bc.stringToBinary(currEntry.getDay()) +
-				bc.intToBinaryString(currEntry.getTime()) +
-				bc.stringToBinary(currEntry.getSensor_name()) +
-				bc.intToBinaryString(currEntry.getHourly_Counts());
+		Page page = new Page(pageByteSize);
+		for (Record record : recordList) {
+			int freeBytes = page.getFreeBytes();
+			int requiredBytes = bc.getNumberOfBytes(record.getBinaryWithOffsets()) + page.getDirecteryEntryByteSize();
+			
+			if (freeBytes < requiredBytes) {
+				pageList.add(page);
+				page = new Page(pageByteSize);
+			}
+			
+			page.addRecord(record);
+		}
+		pageList.add(page);
+	}
+	
+	public void writeAllEntries() {
+		int counter = 0;
+		for (Page page : pageList) {
+			++counter;
+			System.out.println("Writing page number: " + counter);
+			
+			String binary = page.getBinary();
+			dl.writeData(binary);
+		}
+	}
+	
+	public void search() {
+		csvr = new CSVReader(dlFilePath);
 		
-		System.out.println(entry);
+		String page = getPage();
+		int directoryEntryByteSize = bc.getNumberOfBytesToAllowValue(2048);
+		System.out.println(page);
+		
+		int endSubStr = page.length();
+		int startSubStr = endSubStr - (directoryEntryByteSize*8);
+		
+		String binaryString = page.substring(startSubStr, endSubStr);
+		int startByte = Integer.parseInt(binaryString, 2);
+		System.out.println(binaryString);
+		System.out.println(startByte);
+		
+		endSubStr = startSubStr;
+		startSubStr = endSubStr - (directoryEntryByteSize*8);
+		binaryString = page.substring(startSubStr, endSubStr);
+		startByte = Integer.parseInt(binaryString, 2);
+		System.out.println(binaryString);
+		System.out.println(startByte);
+		
+		endSubStr = startSubStr;
+		startSubStr = endSubStr - (directoryEntryByteSize*8);
+		binaryString = page.substring(startSubStr, endSubStr);
+		startByte = Integer.parseInt(binaryString, 2);
+		System.out.println(binaryString);
+		System.out.println(startByte);
+	}
+	
+	public String getPage() {
+		return csvr.readToBytes(2048*8);
+	}
+	
+	public void closeEverything() {
+		csvr.closeFile();
+		dl.closeFile();
 	}
 	
 	

@@ -19,6 +19,7 @@ public class DataLoader {
 	
 	public void writeData(String data) {
 		try {
+			writer.flush();
 			writer.write(data);
 		} catch (IOException e) {
 			System.out.println("File not open");

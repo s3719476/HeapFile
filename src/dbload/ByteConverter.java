@@ -2,11 +2,21 @@ package dbload;
 
 public class ByteConverter {
 	
-	public String intToBinaryStringToByteSize(int value, int byteSize) {
+	public String intToBinaryStringToNearestByteSize(int value) {
 		String binary = intToBinaryString(value);
 		String binaryWithByteSize = String.format(
-				"%" + Integer.toString(byteSize) + "s"
+				"%" + getIntToNearestMultiple(8, binary.length()) + "s"
 				, binary). replaceAll(" ", "0");
+		
+		return binaryWithByteSize;
+	}
+	
+	public String intToBinaryStringToByteSize(int value, int byteSize) {
+		String binary = intToBinaryString(value);
+		
+		String binaryWithByteSize = String.format(
+				"%" + byteSize*8 + "s"
+				, binary).replaceAll(" ", "0");
 		
 		return binaryWithByteSize;
 	}
@@ -27,5 +37,19 @@ public class ByteConverter {
 		}
 		
 		return binary;
+	}
+	
+	private int getIntToNearestMultiple(int multiple, int value) {
+		return (value + (multiple-1)) / multiple * multiple;
+	}
+	
+	public int getNumberOfBytes(String binary) {
+		return binary.length()/8;
+	}
+	
+	public int getNumberOfBytesToAllowValue(int number) {
+		int result = (int) Math.ceil((int)(Math.log(number) / Math.log(2)));
+		
+		return getIntToNearestMultiple(8, result)/8;
 	}
 }

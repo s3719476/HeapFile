@@ -67,4 +67,38 @@ public class Record {
 		return Hourly_Counts;
 	}
 	
+	public String getBinaryWithOffsets() {
+		ByteConverter bc = new ByteConverter();
+		
+		String[] recordBinaryDataArray = 
+			{
+				 bc.intToBinaryStringToNearestByteSize(getID()),
+				 bc.stringToBinary(Integer.toString(getSensor_ID()) + getDate_Time()),
+				 bc.stringToBinary(getDate_Time()),
+				 bc.intToBinaryStringToNearestByteSize(getYear()),
+				 bc.stringToBinary(getMonth()),
+				 bc.intToBinaryStringToNearestByteSize(getMdate()),
+				 bc.stringToBinary(getDay()),
+				 bc.intToBinaryStringToNearestByteSize(getTime()),
+				 bc.intToBinaryStringToNearestByteSize(getSensor_ID()),
+				 bc.stringToBinary(getSensor_name()),
+				 bc.intToBinaryStringToNearestByteSize(getHourly_Counts())
+			};
+		
+		String binaryEntry = "";
+		String binaryOffset = "";
+		
+		int previousOffset = 0;
+		for (String binaryData : recordBinaryDataArray) {
+			binaryEntry += binaryData;
+			
+			binaryOffset += bc.intToBinaryStringToNearestByteSize(previousOffset);
+			
+			previousOffset += bc.getNumberOfBytes(binaryData);
+		}
+		binaryOffset += bc.intToBinaryStringToNearestByteSize(previousOffset);
+		
+		return binaryOffset + binaryEntry;
+	}
+	
 }
