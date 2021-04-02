@@ -31,15 +31,18 @@ public class CSVReader {
 	}
 	
 	public String readToBytes(int readSize) {
-		char[] charString = new char[readSize];
+		String retVal = "";
+		char[] charString = new char[readSize*8];
 		
+		int empty = 0;
 		try {
-			reader.read(charString, 0, readSize);
+			empty = reader.read(charString, 0, readSize*8) ;
 		} catch (IOException e) {
 			System.out.println("File not open");
 		}
-		
-		return new String(charString);
+		if (empty != -1) retVal = new String(charString);
+
+		return retVal;
 	}
 	
 	public void closeFile() {

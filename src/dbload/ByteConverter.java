@@ -52,4 +52,20 @@ public class ByteConverter {
 		
 		return getIntToNearestMultiple(8, result)/8;
 	}
+	
+	public int binaryToInt(String binary) {
+		return Integer.parseInt(binary, 2);
+	}
+	
+	public String binaryToString(String binary) {
+		String value = "";
+		
+		String[] charBinaryArray = binary.split("(?<=\\G.{8})");
+		
+		for (String charBinary : charBinaryArray) {
+			value += new Character((char)Integer.parseInt(charBinary, 2)).toString();
+		}
+		
+		return value;
+	}
 }

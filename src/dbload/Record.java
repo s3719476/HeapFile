@@ -13,6 +13,8 @@ public class Record {
 	private String Sensor_name;
 	private int Hourly_Counts;
 	
+	private final int numFields = 11;
+	
 	public Record(int iD, String date_Time, int year, String month, int mdate, String Day, int Time, int sensor_ID,
 			String sensor_name, int hourly_Counts) {
 		this.ID = iD;
@@ -88,7 +90,7 @@ public class Record {
 		String binaryEntry = "";
 		String binaryOffset = "";
 		
-		int previousOffset = 0;
+		int previousOffset = numFields + 1;
 		for (String binaryData : recordBinaryDataArray) {
 			binaryEntry += binaryData;
 			
@@ -98,7 +100,7 @@ public class Record {
 		}
 		binaryOffset += bc.intToBinaryStringToNearestByteSize(previousOffset);
 		
-		return binaryOffset + binaryEntry;
+		return (binaryOffset + binaryEntry);
 	}
 	
 }

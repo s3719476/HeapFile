@@ -8,7 +8,7 @@ public class Main {
 		hfo.recordsToPages();
 		hfo.writeAllEntries();
 		hfo.closeEverything();
-		hfo.search();
+		hfo.search(2048, Integer.toString(2888364), 0);
 	}
 
 }

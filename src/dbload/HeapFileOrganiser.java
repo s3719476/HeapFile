@@ -11,12 +11,12 @@ public class HeapFileOrganiser {
 	private ByteConverter bc;
 	private CSVReader csvr;
 	private DataLoader dl;
+	private RecordTemplateHelper rth = new RecordTemplateHelper();
 	
 	private Vector<Record> recordList = new Vector<Record>();
 	private Vector<Page> pageList = new Vector<Page>();
 	
 	public InputStream is;
-	
 //	private Vector<Pedestrian> pedestrainList = new Vector<Pedestrian>();
 //	private Vector<Sensor> sensorList = new Vector<Sensor>();
 //	private Vector<Time> timeList = new Vector<Time>();
@@ -32,13 +32,9 @@ public class HeapFileOrganiser {
 		dl = new DataLoader(dlFilePath);
 	}
 	
-	public void loadAllData() {
-		int counter = 0;
-		
+	public void loadAllData() {		
 		String line = csvr.readNextLine();
 		while (line != null) {
-			++counter;
-			System.out.println("Loading entry number: " + counter);
 			
 			storeEntry(line);
 			
@@ -84,54 +80,120 @@ public class HeapFileOrganiser {
 	}
 	
 	public void writeAllEntries() {
-		int counter = 0;
 		for (Page page : pageList) {
-			++counter;
-			System.out.println("Writing page number: " + counter);
 			
 			String binary = page.getBinary();
 			dl.writeData(binary);
 		}
 	}
 	
-	public void search() {
+	public void search(int pageSize, String value, int fieldNum) {
 		csvr = new CSVReader(dlFilePath);
 		
-		String page = getPage();
-		int directoryEntryByteSize = bc.getNumberOfBytesToAllowValue(2048);
-		System.out.println(page);
+		Vector<Integer> validRecords = new Vector<Integer>();
+		Vector<String> validPages = new Vector<String>();
 		
-		int endSubStr = page.length();
-		int startSubStr = endSubStr - (directoryEntryByteSize*8);
 		
-		String binaryString = page.substring(startSubStr, endSubStr);
-		int startByte = Integer.parseInt(binaryString, 2);
-		System.out.println(binaryString);
-		System.out.println(startByte);
+		long timeMilliStart = System.currentTimeMillis();
 		
-		endSubStr = startSubStr;
-		startSubStr = endSubStr - (directoryEntryByteSize*8);
-		binaryString = page.substring(startSubStr, endSubStr);
-		startByte = Integer.parseInt(binaryString, 2);
-		System.out.println(binaryString);
-		System.out.println(startByte);
+		String page = getPage(pageSize);
+		while (!page.isEmpty()) {
+			int directoryEntryByteSize = bc.getNumberOfBytesToAllowValue(pageSize);
+			
+			int endSubStr = page.length();
+			int startSubStr = endSubStr - (directoryEntryByteSize*8);
+			
+			String binaryString = page.substring(startSubStr, endSubStr);
+			int freeSpaceStartByte = Integer.parseInt(binaryString, 2);
+			
+			endSubStr = startSubStr;
+			startSubStr = endSubStr - (directoryEntryByteSize*8);
+			binaryString = page.substring(startSubStr, endSubStr);
+			int numRecords = Integer.parseInt(binaryString, 2);
+	
+			int recordsRead = 0;		
+			while (recordsRead < numRecords) {
+				endSubStr = startSubStr;
+				startSubStr = endSubStr - (directoryEntryByteSize*8);
+				binaryString = page.substring(startSubStr, endSubStr);
+				int recordStart = bc.binaryToInt(binaryString) * 8;
+				
+				int offsetStartSubStr = recordStart + (fieldNum * 8);
+				int offsetEndSubStr = offsetStartSubStr + 8;
+				binaryString = page.substring(offsetStartSubStr, offsetEndSubStr);
+				int fieldOffsetStart = bc.binaryToInt(binaryString) * 8;
+				
+				offsetStartSubStr = offsetEndSubStr;
+				offsetEndSubStr = offsetStartSubStr + 8;
+				binaryString = page.substring(offsetStartSubStr, offsetEndSubStr);
+				int fieldOffsetStop = bc.binaryToInt(binaryString) * 8;
+				
+				binaryString = page.substring(fieldOffsetStart + recordStart, fieldOffsetStop + recordStart);
+				
+				String data = "";
+				if (rth.getFieldTypes()[fieldNum].equals("String")) {
+					data = bc.binaryToString(binaryString);
+					
+				} else {
+					data = Integer.toString(bc.binaryToInt(binaryString));
+				}
+				
+				if (data.equals(value)) {
+					validPages.add(page);
+					validRecords.add(recordStart);
+				}
+	
+				++recordsRead;
+			}
+			
+			page = getPage(pageSize);
+		}
 		
-		endSubStr = startSubStr;
-		startSubStr = endSubStr - (directoryEntryByteSize*8);
-		binaryString = page.substring(startSubStr, endSubStr);
-		startByte = Integer.parseInt(binaryString, 2);
-		System.out.println(binaryString);
-		System.out.println(startByte);
+		long timeMilliEnd = System.currentTimeMillis();
+		
+		System.out.println("Items found:");
+		for (int i = 0; i < validRecords.size(); ++i) {
+			System.out.println(rth.getFormattedNameValue(getAllFieldsInRecord(validPages.get(i), validRecords.get(i))));
+		}
+		System.out.println("Time taken in milliseconds = " + (timeMilliEnd - timeMilliStart));
 	}
 	
-	public String getPage() {
-		return csvr.readToBytes(2048*8);
+	private String[] getAllFieldsInRecord(String page, int recordStart) {
+		String[] retValue = new String[rth.getFieldNum()];
+		String[] fieldTypes = rth.getFieldTypes();
+		
+		for (int i = 0; i < retValue.length; ++i) {
+			int offsetStartSubStr = recordStart + (i * 8);
+			int offsetEndSubStr = offsetStartSubStr + 8;
+			String binaryString = page.substring(offsetStartSubStr, offsetEndSubStr);
+			int fieldOffsetStart = bc.binaryToInt(binaryString) * 8;
+			
+			offsetStartSubStr = offsetEndSubStr;
+			offsetEndSubStr = offsetStartSubStr + 8;
+			binaryString = page.substring(offsetStartSubStr, offsetEndSubStr);
+			int fieldOffsetStop = bc.binaryToInt(binaryString) * 8;
+			
+			binaryString = page.substring(fieldOffsetStart + recordStart, fieldOffsetStop + recordStart);
+			
+			if (fieldTypes[i].equals("String")) {
+				retValue[i] = bc.binaryToString(binaryString);
+			} else {
+				retValue[i] = Integer.toString(bc.binaryToInt(binaryString));
+			}
+			
+			
+		}
+		
+		return retValue;
+	}
+	
+	public String getPage(int pageByteSize) {
+		return csvr.readToBytes(pageByteSize);
 	}
 	
 	public void closeEverything() {
 		csvr.closeFile();
 		dl.closeFile();
 	}
-	
 	
 }
