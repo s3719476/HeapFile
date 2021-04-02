@@ -16,20 +16,34 @@ public class HeapFileOrganiser {
 	}
 	
 	public void loadDataToHeap(int pageSize, String csvFile) {
+		long timeMilliStart = System.currentTimeMillis();
+		
 		reader = new Reader(csvFile);
+//		System.out.println("Loading Data");
 		loadAllData();
 		recordsToPages(pageSize);
 		
 		writer = new Writer("heap." + pageSize);
+//		System.out.println("Writing Data");
 		writeAllEntries();
 		closeEverything();
+		
+		long timeMilliEnd = System.currentTimeMillis();
+		
+		System.out.println("Amount of records: " + recordList.size());
+		System.out.println("Amount of pages: " + pageList.size());
+		System.out.println("Time taken in milliseconds = " + (timeMilliEnd - timeMilliStart));
 	}
 	
 	// Reads all the data and stores the records in objects
 	private void loadAllData() {		
+		// Reads header data then goes to first entry
 		String line = reader.readNextLine();
+		line = reader.readNextLine();
+		int counter = 0;
 		while (line != null) {
-			
+			counter++;
+//			System.out.println("Reading Record: " + counter);
 			storeEntry(line);
 			
 			line = reader.readNextLine();
@@ -60,9 +74,11 @@ public class HeapFileOrganiser {
 	// Used to set up the layout of a heap file
 	private void recordsToPages(int pageSize) {
 		int pageByteSize = pageSize;
-		
+		int counter = 0;
 		Page page = new Page(pageByteSize);
 		for (Record record : recordList) {
+			counter++;
+//			System.out.println("Placing into Page: " + counter);
 			int freeBytes = page.getFreeBytes();
 			int requiredBytes = bc.getNumberOfBytes(record.getBinaryWithOffsets()) + page.getDirecteryEntryByteSize();
 			
@@ -78,7 +94,11 @@ public class HeapFileOrganiser {
 	
 	// Places all entries in an external file
 	private void writeAllEntries() {
+		int pageAmount = pageList.size();
+		int counter = 0;
 		for (Page page : pageList) {
+			counter ++;
+//			System.out.println("Writing Page: " + counter + "/" + pageAmount);
 			
 			String binary = page.getBinary();
 			writer.writeData(binary);
