@@ -35,6 +35,67 @@ public class HeapFileOrganiser {
 		System.out.println("Time taken in milliseconds = " + (timeMilliEnd - timeMilliStart));
 	}
 	
+	// Not enough heap space when running on linux machine
+	// Instead of reading and storing then writing to a heap file
+	// It reads until the page is full or no more records and then writes the page
+	public void loadDataToHeapV2(int pageSize, String csvFile) {
+		// Start up readers and writers
+		reader = new Reader(csvFile);
+		writer = new Writer("heap." + pageSize);
+		
+		// Start timing
+		long timeMilliStart = System.currentTimeMillis();
+		
+		// Skip header line and read the first data line
+		String line = reader.readNextLine();
+		line = reader.readNextLine();
+		
+		// Initialises variables to count how many pages and records
+		// Whenever a new record or page is created its respective variable increments
+		int recordAmount = 0;
+		int pageAmount = 1;
+		Page page = new Page(pageSize);
+		
+		// Loops until all the data in the csv is read
+		while (line != null) {
+			++recordAmount;
+			Record record = createRecord(line);
+			
+			System.out.println("Converting to Heap Record: " + recordAmount);
+			
+			// Gets the free bytes left in the page and bytes required to store the record
+			int freeBytes = page.getFreeBytes();
+			int requiredBytes = bc.getNumberOfBytes(record.getBinaryWithOffsets()) + page.getDirecteryEntryByteSize();
+			
+			// If theres not enough bytes write the page and get a new page
+			if (freeBytes < requiredBytes) {
+				writer.writeData(page.getBinary());
+				
+				++pageAmount;
+				page = new Page(pageSize);
+			}
+			
+			// Add the record to the page
+			page.addRecord(record);
+			
+			// Read the next line and prepare for next iteration
+			line = reader.readNextLine();
+		}
+		// After all data is read then write the last page to the heap file
+		writer.writeData(page.getBinary());
+		
+		// End timing
+		long timeMilliEnd = System.currentTimeMillis();
+		
+		// Close the read and write files
+		closeEverything();
+		
+		// Print relevant data
+		System.out.println("Amount of records: " + recordAmount);
+		System.out.println("Amount of pages: " + pageAmount);
+		System.out.println("Time taken in milliseconds = " + (timeMilliEnd - timeMilliStart));
+	}
+	
 	// Reads all the data and stores the records in objects
 	private void loadAllData() {		
 		// Reads header data then goes to first entry
@@ -44,7 +105,6 @@ public class HeapFileOrganiser {
 		while (line != null) {
 			counter++;
 //			System.out.println("Reading Record: " + counter);
-			storeEntry(line);
 			
 			line = reader.readNextLine();
 		}
@@ -53,9 +113,13 @@ public class HeapFileOrganiser {
 	
 	// Adds single record data into object stored on the recordList
 	private void storeEntry(String data) {
+		recordList.add(createRecord(data));
+	}
+	
+	private Record createRecord(String data) {
 		String[] values = data.split(",");
 		
-		recordList.add(new Record(
+		Record record = new Record(
 				Integer.parseInt(values[0]),
 				values[1],
 				Integer.parseInt(values[2]),
@@ -66,8 +130,9 @@ public class HeapFileOrganiser {
 				Integer.parseInt(values[7]),
 				values[8],
 				Integer.parseInt(values[9])
-						)
-				);
+						);
+		
+		return record;
 	}
 	
 	// Places all the records stored in the list into page objects
