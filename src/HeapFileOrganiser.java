@@ -235,7 +235,7 @@ public class HeapFileOrganiser {
 				}
 				
 				// If the entry matches then it stores the record start location and page for later prints
-				if (data.equals(value)) {
+				if (data.contains(value)) {
 					validPages.add(page);
 					validRecords.add(recordStart);
 				}
