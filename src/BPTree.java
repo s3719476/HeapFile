@@ -2,7 +2,7 @@
 public class BPTree {
 	private Node root = null;
 	
-	public BPTree(int fanout, double minOccupancy) {
+	public BPTree(int fanout) {
 		root.setFanout(fanout);
 	}
 	

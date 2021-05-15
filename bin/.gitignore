@@ -1,6 +1,11 @@
+/BPTree.class
 /ByteConverter.class
+/DataNode.class
 /HeapFileOrganiser.class
+/IndexNode.class
+/KRid.class
 /Main.class
+/Node.class
 /Page.class
 /Reader.class
 /Record.class
@@ -9,11 +14,4 @@
 /Writer.class
 /dbload.class
 /dbquery.class
-/BPTree.class
-/Address.class
-/AddressFactory.class
-/Node.class
-/NodeFactory.class
-/DataNode.class
-/IndexNode.class
-/KRid.class
+/NodeKeySplit.class

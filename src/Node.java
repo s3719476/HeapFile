@@ -4,6 +4,10 @@ public abstract class Node {
 	
 	public abstract void insert(KRid entry);
 	
+	public abstract NodeKeySplit split();
+	
+	public abstract int getSize();
+	
 	public void setFanout(int fanout) {
 		Node.fanout = fanout;
 	}

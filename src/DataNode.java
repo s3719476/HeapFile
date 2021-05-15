@@ -19,18 +19,27 @@ public class DataNode extends Node {
 		}
 		
 		entries.add(currEntryIdx, entry);
-		
-		if (entries.size() > super.getFanout()) split();
 	}
 	
-	private void split() {
+	public NodeKeySplit split() {
+		int splitPoint = (int)Math.ceil(getFanout()/2);
+		
 		Vector<KRid> splitEntries = new Vector<KRid>();
-		for (int i = (int)Math.ceil(getFanout()/2); i < entries.size(); ++i) splitEntries.add(entries.get(i));
+		for (int i = entries.size()-1; i >= splitPoint; ++i) {
+			splitEntries.add(0, entries.get(i));
+			entries.remove(entries.size()-1);
+		}
 		
 		DataNode newNode = new DataNode(splitEntries);
 		
 		nextNode.getNextNode().setPrevNode(newNode);
 		nextNode = newNode;
+		
+		return new NodeKeySplit(newNode, splitEntries.get(0).getKey());
+	}
+	
+	public int getSize() {
+		return entries.size();
 	}
 	
 	public DataNode getPrevNode() {
