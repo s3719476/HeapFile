@@ -1,6 +1,6 @@
 
 public abstract class Node {
-	private static int fanout;
+	private static int fanout = 0;
 	
 	public abstract void insert(KRid entry);
 	
@@ -9,6 +9,8 @@ public abstract class Node {
 	public abstract int getSize();
 	
 	public abstract String getBinary();
+	
+	public abstract void print(int level);
 	
 	public void setFanout(int fanout) {
 		Node.fanout = fanout;

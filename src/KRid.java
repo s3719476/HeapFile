@@ -1,9 +1,9 @@
 
 public class KRid {
 	private int key;
-	private int address;
+	private Address address;
 	
-	public KRid(int key, int address) {
+	public KRid(int key, Address address) {
 		this.key = key;
 		this.address = address;
 	}
@@ -12,7 +12,7 @@ public class KRid {
 		return key;
 	}
 	
-	public int address() {
+	public Address getAddress() {
 		return address;
 	}
 	

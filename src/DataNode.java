@@ -3,7 +3,7 @@ import java.util.Vector;
 public class DataNode extends Node {
 	private DataNode prevNode = null;
 	private DataNode nextNode = null;
-	private Vector<KRid> entries;
+	private Vector<KRid> entries = new Vector<KRid>();
 	
 	public DataNode(Vector<KRid> splitEntries) {
 		this.entries = splitEntries;
@@ -12,30 +12,68 @@ public class DataNode extends Node {
 	public DataNode() {}
 	
 	public void insert(KRid entry) {
-		boolean found = false;
+		boolean foundPosition = false;
+		boolean foundMatch = false;
 		int currEntryIdx = 0;
-		while (found == false && currEntryIdx < entries.size()) {
-			if (entry.getKey() < entries.get(currEntryIdx).getKey()) found = true;
+		while (foundPosition == false && currEntryIdx < entries.size()) {
+			int insertKey = entry.getKey();
+			int compareKey = entries.get(currEntryIdx).getKey();
+			if (insertKey == compareKey) {
+				foundPosition = true;
+				foundMatch = true;
+			}
+			else if (insertKey < compareKey) foundPosition = true;
+			else ++currEntryIdx;
 		}
 		
-		entries.add(currEntryIdx, entry);
+		if (foundMatch == false) entries.add(currEntryIdx, entry);
+		else {
+			entry.getAddress().setPreviousAddress(entries.get(currEntryIdx).getAddress());
+			entries.get(currEntryIdx).getAddress().setNextAddress(entry.getAddress());
+		}
 	}
 	
 	public NodeKeySplit split() {
+		boolean foundSplitPoint = false;
 		int splitPoint = (int)Math.ceil(getFanout()/2);
 		
+		while (foundSplitPoint == false && splitPoint > 0) {
+			if (entries.get(splitPoint).getKey() != entries.get(splitPoint-1).getKey()) foundSplitPoint = true;
+			else --splitPoint;
+		}
+		if (foundSplitPoint == false) splitPoint = (int)Math.ceil(getFanout()/2);
+		
 		Vector<KRid> splitEntries = new Vector<KRid>();
-		for (int i = entries.size()-1; i >= splitPoint; ++i) {
+		for (int i = entries.size()-1; i >= splitPoint; --i) {
 			splitEntries.add(0, entries.get(i));
 			entries.remove(entries.size()-1);
 		}
 		
 		DataNode newNode = new DataNode(splitEntries);
 		
-		nextNode.getNextNode().setPrevNode(newNode);
+		if (nextNode != null) {
+			nextNode.setPrevNode(newNode);
+		}
+		newNode.setPrevNode(this);
 		nextNode = newNode;
 		
 		return new NodeKeySplit(newNode, splitEntries.get(0).getKey());
+	}
+	
+	public void print(int level) {
+		System.out.print("--DATA: ");
+		for(KRid entry: entries) {
+			System.out.print("|" + entry.getKey());
+			int addressCount = 1;
+			Address address = entry.getAddress();
+			while (address != null) {
+				++addressCount;
+				address = address.getNextAddress();
+			}
+			
+			System.out.print("(" + addressCount + ")|");
+		}
+		System.out.println();
 	}
 	
 	public String getBinary() {
