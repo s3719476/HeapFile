@@ -27,10 +27,7 @@ public class DataNode extends Node {
 		}
 		
 		if (foundMatch == false) entries.add(currEntryIdx, entry);
-		else {
-			entry.getAddress().setPreviousAddress(entries.get(currEntryIdx).getAddress());
-			entries.get(currEntryIdx).getAddress().setNextAddress(entry.getAddress());
-		}
+		else entries.get(currEntryIdx).addAddress(entry.getAddress());
 	}
 	
 	public NodeKeySplit split() {
@@ -66,7 +63,7 @@ public class DataNode extends Node {
 			System.out.print("|" + entry.getKey());
 			int addressCount = 1;
 			Address address = entry.getAddress();
-			while (address != null) {
+			while (address.getNextAddress() != null) {
 				++addressCount;
 				address = address.getNextAddress();
 			}

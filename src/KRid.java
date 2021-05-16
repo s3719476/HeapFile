@@ -19,4 +19,14 @@ public class KRid {
 	public String getBinary() {
 		return null;
 	}
+	
+	public void addAddress(Address newAddress) {
+		Address currentAddress = this.address;
+		while (currentAddress.getNextAddress() != null) {
+			currentAddress = currentAddress.getNextAddress();
+		}
+		
+		newAddress.setPreviousAddress(currentAddress);
+		currentAddress.setNextAddress(newAddress);
+	}
 }
