@@ -223,7 +223,7 @@ public class HeapFileOrganiser {
 				
 				// Gets the binary of relating to the desired field
 				binaryString = page.substring(fieldOffsetStart + recordStart, fieldOffsetStop + recordStart);
-				
+//				System.out.println("Start:" + (fieldOffsetStart + recordStart) + "End:" + (fieldOffsetStop + recordStart));
 				// Converts the data to understandable values depending if type string or int
 				// Compares to the search value
 				String data = "";

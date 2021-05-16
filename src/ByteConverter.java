@@ -45,7 +45,7 @@ public class ByteConverter {
 	private int getIntToNearestMultiple(int multiple, int value) {
 		return (value + (multiple-1)) / multiple * multiple;
 	}
-	
+	  
 	public int getNumberOfBytes(String binary) {
 		return binary.length()/8;
 	}
@@ -70,5 +70,9 @@ public class ByteConverter {
 		}
 		
 		return value;
+	}
+	
+	public byte binaryStringToByte(String binary) {
+		return Byte.parseByte(binary, 2);
 	}
 }

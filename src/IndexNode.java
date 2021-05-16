@@ -49,6 +49,10 @@ public class IndexNode extends Node{
 		return new NodeKeySplit(new IndexNode(splitKeys, splitBranches), newKey);
 	}
 	
+	public String getBinary() {
+		return null;
+	}
+	
 	public int getSize() {
 		return keys.size();
 	}

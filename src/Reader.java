@@ -5,6 +5,7 @@ public class Reader {
 	private String filePath;
 	private FileReader reader;
 	private BufferedReader br;
+	private FileInputStream byteReader;
 	
 	public Reader(String filePath) {
 		this.filePath = filePath;
@@ -12,6 +13,8 @@ public class Reader {
 		try {
 			this.reader = new FileReader(new File(this.filePath));
 			br = new BufferedReader(this.reader);
+			
+			this.byteReader = new FileInputStream(new File(this.filePath));
 		} catch (IOException e) {
 			System.out.println("Can not Open File");
 		}
@@ -31,15 +34,19 @@ public class Reader {
 	
 	public String readToBytes(int readSize) {
 		String retVal = "";
-		char[] charString = new char[readSize*8];
+		byte[] readBuffer = new byte[readSize];
 		
 		int empty = 0;
 		try {
-			empty = reader.read(charString, 0, readSize*8) ;
+			empty = byteReader.read(readBuffer) ;
 		} catch (IOException e) {
 			System.out.println("File not open");
 		}
-		if (empty != -1) retVal = new String(charString);
+		if (empty != -1) {
+				for (byte readByte : readBuffer) {
+					retVal += String.format("%8s", Integer.toBinaryString(readByte & 0xFF)).replace(' ', '0');
+				}
+		};
 
 		return retVal;
 	}

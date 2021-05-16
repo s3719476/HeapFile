@@ -38,6 +38,10 @@ public class DataNode extends Node {
 		return new NodeKeySplit(newNode, splitEntries.get(0).getKey());
 	}
 	
+	public String getBinary() {
+		return null;
+	}
+	
 	public int getSize() {
 		return entries.size();
 	}

@@ -8,6 +8,8 @@ public abstract class Node {
 	
 	public abstract int getSize();
 	
+	public abstract String getBinary();
+	
 	public void setFanout(int fanout) {
 		Node.fanout = fanout;
 	}
