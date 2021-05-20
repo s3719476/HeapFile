@@ -3,7 +3,7 @@ import java.util.Vector;
 // Class to represent a page in the heap
 public class Page {
 	
-	private ByteConverter bc = new ByteConverter();
+	private ByteConverter bc = ByteConverter.getInstance();
 	private Vector<Record> records;	// Bunch of records the page holds
 	private SlotDirectory directory;	// The slot directory to navigate the page
 	private int pageByteSize;	// How big the page is in bytes

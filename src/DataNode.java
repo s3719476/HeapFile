@@ -4,9 +4,11 @@ public class DataNode extends Node {
 	private DataNode prevNode = null;
 	private DataNode nextNode = null;
 	private Vector<KRid> entries = new Vector<KRid>();
+	private BinaryTreeFileWriter btfw = BinaryTreeFileWriter.getInstance();
 	
 	public DataNode(Vector<KRid> splitEntries) {
 		this.entries = splitEntries;
+		setSize(0);
 	}
 	
 	public DataNode() {}
@@ -27,7 +29,9 @@ public class DataNode extends Node {
 		}
 		
 		if (foundMatch == false) entries.add(currEntryIdx, entry);
-		else entries.get(currEntryIdx).addAddress(entry.getAddress());
+		else entries.get(currEntryIdx).addAddress(entry.getDataAddress());
+		setSize(getSize() + 1);
+		
 	}
 	
 	public NodeKeySplit split() {
@@ -44,6 +48,7 @@ public class DataNode extends Node {
 		for (int i = entries.size()-1; i >= splitPoint; --i) {
 			splitEntries.add(0, entries.get(i));
 			entries.remove(entries.size()-1);
+			setSize(getSize() - 1);
 		}
 		
 		DataNode newNode = new DataNode(splitEntries);
@@ -62,7 +67,7 @@ public class DataNode extends Node {
 		for(KRid entry: entries) {
 			System.out.print("|" + entry.getKey());
 			int addressCount = 1;
-			Address address = entry.getAddress();
+			Address address = entry.getDataAddress();
 			while (address.getNextAddress() != null) {
 				++addressCount;
 				address = address.getNextAddress();
@@ -74,11 +79,46 @@ public class DataNode extends Node {
 	}
 	
 	public String getBinary() {
-		return null;
+		String binary = "";
+		
+		binary += bc.intToBinaryStringToByteSize(getSize(), 1);
+		
+		for (KRid entry : entries) {
+			binary += bc.intToBinaryStringToByteSize(entry.getKey(), 3);
+			binary += entry.getLocation().getBinary();
+		}
+		
+		if (prevNode == null) binary += new Address(0, 0).getBinary();
+		else binary += prevNode.getLocation().getBinary();
+		
+		if (nextNode == null) binary += new Address(0, 0).getBinary();
+		else binary += new Address(btfw.getPageAmount(), (btfw.getFrontFreeSpaceLocation() + binary.length() + (3*8))).getBinary();
+		
+		return binary;
 	}
 	
 	public int getSize() {
 		return entries.size();
+	}
+	
+	public void writeKRid() {
+		for (KRid entry : entries) entry.writeKRid();
+	}
+	
+	public void writeDataNodes() {
+		setLocation(btfw.insertFront(getBinary()));
+	}
+	
+	public void writeIndexNodes() {};
+	
+	public int getBytesSize() {
+		int bytesSize = 
+				1 +
+				(entries.size() * 3) +
+				(entries.size() * 3) +
+				3 +
+				3;
+		return bytesSize;
 	}
 	
 	public DataNode getPrevNode() {

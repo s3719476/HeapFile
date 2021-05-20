@@ -8,7 +8,7 @@ public class Writer {
 
 	private String filePath;
 	private FileOutputStream writer;
-	private ByteConverter bc = new ByteConverter();
+	private ByteConverter bc = ByteConverter.getInstance();
 	
 	public Writer(String filePath) {
 		this.filePath = filePath;

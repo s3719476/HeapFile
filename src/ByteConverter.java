@@ -1,8 +1,15 @@
 // Helper class to do binary conversions and byte calculations
 public class ByteConverter {
+	private static ByteConverter INSTANCE = null;
 	
-	public ByteConverter() {
+	private ByteConverter() {}
+	
+	public static ByteConverter getInstance() {
+		if (INSTANCE == null) {
+			INSTANCE = new ByteConverter();
+		}
 		
+		return INSTANCE;
 	}
 	
 	public String intToBinaryStringToNearestByteSize(int value) {

@@ -71,7 +71,7 @@ public class Record {
 	// Method sends back the binary of each attribute of this record
 	// At the start also holds the binary of the offsets required to get to each field in the binary
 	public String getBinaryWithOffsets() {
-		ByteConverter bc = new ByteConverter();
+		ByteConverter bc = ByteConverter.getInstance();
 		
 		// Gets an array of each field in binary needed to be stored
 		String[] recordBinaryDataArray = 

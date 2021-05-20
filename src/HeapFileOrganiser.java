@@ -2,7 +2,7 @@ import java.util.Vector;
 
 // Central class to manage all other classes
 public class HeapFileOrganiser {
-	private ByteConverter bc;
+	private ByteConverter bc = ByteConverter.getInstance();
 	private Reader reader;
 	private Writer writer;
 	private RecordTemplateHelper rth = new RecordTemplateHelper();
@@ -12,7 +12,6 @@ public class HeapFileOrganiser {
 	
 	// Initialises all tools required
 	public HeapFileOrganiser() {
-		this.bc = new ByteConverter();
 	}
 	
 	public void loadDataToHeap(int pageSize, String csvFile) {

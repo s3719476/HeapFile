@@ -9,7 +9,7 @@ public class SlotDirectory {
 	private int entryByteSize;	// The amount of bytes each entry in the slot directory takes up
 	private Vector<Integer> slotPointers;
 	
-	private ByteConverter bc = new ByteConverter();
+	private ByteConverter bc = ByteConverter.getInstance();
 	
 	public SlotDirectory(int pageByteSize) {
 		this.directoryByteSize = 0;

@@ -3,10 +3,12 @@ import java.util.Vector;
 public class IndexNode extends Node{
 	private Vector<Integer> keys = new Vector<Integer>();
 	private Vector<Node> branches = new Vector<Node>();
+	private BinaryTreeFileWriter btfw = BinaryTreeFileWriter.getInstance();
 	
 	public IndexNode(Vector<Integer> splitKeys, Vector<Node> splitBranches) {
 		this.keys = splitKeys;
 		this.branches = splitBranches;
+		setSize(0);
 	}
 	
 	public void insert(KRid entry) {
@@ -20,6 +22,7 @@ public class IndexNode extends Node{
 		
 		Node branch = branches.get(currKeyIdx);
 		branch.insert(entry);
+		setSize(getSize() + 1);
 		
 		if (branch.getSize() > getFanout()) {
 			NodeKeySplit split = branch.split();
@@ -45,6 +48,7 @@ public class IndexNode extends Node{
 		for (int i = keys.size()-1; i >= splitPoint; --i) {
 			splitKeys.add(0, keys.get(i));
 			keys.remove(keys.size()-1);
+			setSize(getSize() - 1);
 		}
 		
 		Vector<Node> splitBranches = new Vector<Node>();
@@ -65,10 +69,42 @@ public class IndexNode extends Node{
 	}
 	
 	public String getBinary() {
-		return null;
+		String binary = "";
+		
+		binary += bc.intToBinaryStringToByteSize(getSize(), 1);
+		
+		for (int i = 0; i < getSize(); ++i) {
+			binary += branches.get(i).getLocation().getBinary();
+			binary += bc.intToBinaryStringToByteSize(keys.get(i), 3);
+		}
+		binary += branches.lastElement().getLocation().getBinary();
+		
+		return binary;
+	}
+	
+	public void writeKRid() {
+		for (Node branch : branches) branch.writeKRid();
+	}
+	
+	public void writeDataNodes() {
+		for (Node branch : branches) branch.writeDataNodes();
+	}
+	
+	public void writeIndexNodes() {
+		for (Node branch : branches) branch.writeIndexNodes();
+		
+		setLocation(btfw.insertFront(getBinary()));
 	}
 	
 	public int getSize() {
 		return keys.size();
+	}
+	
+	public int getBytesSize() {
+		int bytesSize = 
+				1 +
+				(branches.size() * 3) +
+				(keys.size() * 3);
+		return bytesSize;
 	}
 }
