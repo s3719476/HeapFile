@@ -1,5 +1,6 @@
 import java.util.Vector;
 
+// Index nodes used to traverse to the data nodes then
 public class IndexNode extends Node{
 	private Vector<Integer> keys = new Vector<Integer>();
 	private Vector<Node> branches = new Vector<Node>();
@@ -15,16 +16,22 @@ public class IndexNode extends Node{
 		int currKeyIdx = 0;
 		boolean found = false;
 		
+		// Iterates through the keys to find the applicable key
 		while (found == false && currKeyIdx < keys.size()) {
 			if (entry.getKey() < keys.get(currKeyIdx)) found = true;
 			else ++currKeyIdx;
 		}
 		
+		// Calls insert of the next branch relative to the found key
 		Node branch = branches.get(currKeyIdx);
 		branch.insert(entry);
 		setSize(getSize() + 1);
 		
+		// If the insert resulted in the relevant branch becoming larger than the fanout
+		// Split the node
 		if (branch.getSize() > getFanout()) {
+			// Splits the node which returns the new node created after the split
+			// Then adds the split node to this index node and adds the relevant key
 			NodeKeySplit split = branch.split();
 			keys.add(currKeyIdx, split.getKey());
 			branches.add(currKeyIdx+1, split.getNode());
@@ -32,6 +39,8 @@ public class IndexNode extends Node{
 	}
 	
 	public NodeKeySplit split() {
+		// Algorithm to find where to split this node
+		// This is to ensure that the values split are not seperated poorly to create an incorrect B+Tree
 		boolean foundSplitPoint = false;
 		int splitPoint = (int)Math.ceil(getFanout()/2);
 		
@@ -41,9 +50,11 @@ public class IndexNode extends Node{
 		}
 		if (foundSplitPoint == false) splitPoint = (int)Math.ceil(getFanout()/2);
 		
+		// Obtains the new key that the above node will use to point to the old and split nodes
 		int newKey = keys.get(splitPoint);
 		keys.remove(splitPoint);
 		
+		// Seperates the keys and branches
 		Vector<Integer> splitKeys = new Vector<Integer>();
 		for (int i = keys.size()-1; i >= splitPoint; --i) {
 			splitKeys.add(0, keys.get(i));
@@ -57,6 +68,7 @@ public class IndexNode extends Node{
 			branches.remove(branches.size()-1);
 		}
 		
+		// Returns a new node with the split branches and keys as well as the key which the parent node will use to point to this new node
 		return new NodeKeySplit(new IndexNode(splitKeys, splitBranches), newKey);
 	}
 	
@@ -82,17 +94,22 @@ public class IndexNode extends Node{
 		return binary;
 	}
 	
+	// Iterates through all the children telling them to write the linked lists
 	public void writeKRid() {
 		for (Node branch : branches) branch.writeKRid();
 	}
 	
+	// Iterates throguh all the children telling them to write the data nodes
 	public void writeDataNodes() {
 		for (Node branch : branches) branch.writeDataNodes();
 	}
 	
+	// Iterates through all the children telling them to write the index nodes
 	public void writeIndexNodes() {
 		for (Node branch : branches) branch.writeIndexNodes();
 		
+		// After all its children have wrote the data nodes which sets there address location on the binary file
+		// Write this index nodes location to the binary file
 		setLocation(btfw.insertFront(getBinary()));
 	}
 	

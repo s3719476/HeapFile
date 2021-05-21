@@ -1,4 +1,6 @@
-
+// Abstract class for methods on all nodes in the B+ tree
+// Use of abstract methods as methods are designed to recursively iterate through the nodes of the tree
+// But data and index node implementation of inserts, writes and splits are different
 public abstract class Node {
 	protected static ByteConverter bc = ByteConverter.getInstance();
 	private BinaryTreeFileWriter btfw = BinaryTreeFileWriter.getInstance();

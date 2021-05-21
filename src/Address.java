@@ -1,4 +1,4 @@
-
+// Address ckass used as a node for the doubly linked list to address data
 public class Address {
 	private int offset;	// 2 byte
 	private int page;	//1 byte

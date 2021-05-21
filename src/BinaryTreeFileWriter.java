@@ -1,5 +1,6 @@
 import java.util.Vector;
 
+// Singleton class to organise writing to a binary file
 public class BinaryTreeFileWriter {
 	private static BinaryTreeFileWriter INSTANCE = null;
 	private int freeByteSpace;
@@ -30,6 +31,7 @@ public class BinaryTreeFileWriter {
 		this.writer = new Writer("./tree." + pageSize);
 	}
 	
+	// Inserts the binary at the start of the binary file
 	public Address insertFront(String binary) {
 		int binaryByteSize = binary.length() / 8;
 		
@@ -43,6 +45,7 @@ public class BinaryTreeFileWriter {
 		return new Address(pageAmount, offsetLocation);
 	}
 	
+	// Inserts the binary at the back of the binary file
 	public Address insertBack(String binary) {
 		int binaryByteSize = binary.length() / 8;
 		
@@ -56,6 +59,7 @@ public class BinaryTreeFileWriter {
 		return new Address(pageAmount, offsetLocation);
 	}
 	
+	// Checks if the amount of bytes is large enough and if not then store that page to get a new page
 	private void checkSpaceWrite(int bytesToTake) {
 		if (bytesToTake > freeByteSpace) {
 			storeCurrentPage();
@@ -63,6 +67,7 @@ public class BinaryTreeFileWriter {
 		}
 	}
 	
+	// Stores the page for later bulk writing to a binary file
 	private void storeCurrentPage() {
 		String data = currentFrontPageBinary;
 		data +=	new String(new char[freeByteSpace*8]).replace("\0", "0");
@@ -74,16 +79,19 @@ public class BinaryTreeFileWriter {
 		currentBackPageBinary = "";
 	}
 	
+	// Shortcut to store the current page for later bulk writing
 	public void completePages(String binary) {
 		storeCurrentPage();
 		pages.set(0, binary + pages.get(0).substring(binary.length()));
 	}
 	
+	// Inserts space at the start of the page
 	public void insertRootSpace(int rootBytes) {
 		freeByteSpace -= rootBytes;
 		currentFrontPageBinary += new String(new char[rootBytes*8]).replace("\0", "0");
 	}
 	
+	// Bulk write all the pages
 	public void writeAllPages() {
 		for (String page : pages) {
 			writer.writeData(page);

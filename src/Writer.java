@@ -20,6 +20,9 @@ public class Writer {
 		}
 	}
 	
+	// EDIT FROM ASSIGNMENT 1
+	// Messy way to ensure that previous assignment 1 code still works without major refactoring
+	// Translate the binary string data into bytes to write to the binary file
 	public void writeData(String data) {
 		try {
 			writer.flush();

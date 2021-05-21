@@ -32,6 +32,9 @@ public class Reader {
 		return retVal;
 	}
 	
+	// EDIT FROM ASSIGNMENT 1
+	// Messy way to ensure that previous assignment 1 code still works without major refactoring
+	// As the binary file is now written in real binary and bytes, a quick fix is to change the byte data into a binary string 
 	public String readToBytes(int readSize) {
 		String retVal = "";
 		byte[] readBuffer = new byte[readSize];

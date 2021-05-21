@@ -1,4 +1,5 @@
-
+// Data class to wrap the data addresses to the heap and their relevant keys
+// Essentially the linked list holding the data addresses
 public class KRid {
 	private int key;	// 3 bytes
 	private Address dataAddress;	// 3 bytes
@@ -38,12 +39,15 @@ public class KRid {
 		return binary;
 	}
 	
+	// Appends the address parameter to the end of the linked list
 	public void addAddress(Address newAddress) {
+		// Traverses through the addresses of the linked list until the next address is null (end of list)
 		Address currentAddress = this.dataAddress;
 		while (currentAddress.getNextAddress() != null) {
 			currentAddress = currentAddress.getNextAddress();
 		}
 		
+		// Adds the address to the end of the list and sorts the prev and next address to maintain doubly linked list structure
 		newAddress.setPreviousAddress(currentAddress);
 		currentAddress.setNextAddress(newAddress);
 		

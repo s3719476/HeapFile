@@ -12,18 +12,25 @@ public class BPTree {
 	}
 	
 	public void insert(KRid entry) {		
+		// Recursively calls insert on nodes
 		root.insert(entry);
 		
+		// An insert may create splits in bottom nodes
+		// This may propogate up to the root node
+		// Checks the size of the root node if it is larger than the fanout and splits the root
 		if (root.getSize() > root.getFanout()) {
+			// Splitting the root equals a new level
 			++level;
 			NodeKeySplit split = root.split();
 			
+			// Arranges the split nodes
 			Vector<Integer> newKeys = new Vector<Integer>();
 			newKeys.add(split.getKey());
 			Vector<Node> newBranches = new Vector<Node>();
 			newBranches.add(root);
 			newBranches.add(split.getNode());
 			
+			// Assigns new root node
 			root =  new IndexNode(newKeys, newBranches);
 		}
 	}
@@ -94,20 +101,27 @@ public class BPTree {
 //		printTree();
 	}
 	
+	// Writes the tree
 	public void writeTree(int pageSize) {
-		btfw.setPageSize(pageSize);
-		btfw.insertRootSpace(4);
+		btfw.setPageSize(pageSize);	// Initialise organisiation of the organiser for writing tree into binary file
+		btfw.insertRootSpace(4);	// Save space for the root node address
+		// Write all nodes to the bianry file bottom up as the addresses of the below nodes need to be known in order to write the above node
 		root.writeKRid();
 		root.writeDataNodes();
 		root.writeIndexNodes();
+		// Flush and write out remaining page out to the binary file
 		btfw.completePages(bc.intToBinaryStringToByteSize(level, 1) + root.getLocation().getBinary());
+		// Write all the pages stored out to the binary file
 		btfw.writeAllPages();
 	}
 	
+	// Query on the index used by the tree stored in the binary file
 	public void queryTree(int pageSize, int query) {
+		// Lists to store the record addresses obtained from the binary tree that matches the query
 		Vector<Integer> validRecords = new Vector<Integer>();
 		Vector<String> validPages = new Vector<String>();
 		
+		// Reader to get the tree
 		reader = new Reader("./tree." + pageSize);
 		
 		// Gets all the pages and stores them in a vector
@@ -118,37 +132,50 @@ public class BPTree {
 			page = reader.readToBytes(pageSize);
 		}
 		
+		// Reads the first byte of the page which is the amount of the levels in the tree
 		String tempPage = pages.get(0);
 		int startOffset = 0;
 		int endOffset = 8;
 		String tempBinary = tempPage.substring(startOffset, endOffset);
 		int levels = bc.binaryToInt(tempBinary);
 		
+		// The following gets the address of the root
+		// Next 1 byte which is the page where the root is stored
 		startOffset = endOffset;
 		endOffset = startOffset + (1*8);
 		tempBinary = tempPage.substring(startOffset, endOffset);
 		int nodePage = bc.binaryToInt(tempBinary);
 		
+		// Next 2 bytes - offset of root from the front of page
 		startOffset = endOffset;
 		endOffset = startOffset + (2*8);
 		tempBinary = tempPage.substring(startOffset, endOffset);
 		int nodeOffset = bc.binaryToInt(tempBinary);
 		
+		// Iterates through index nodes until it reaches the data nodes
 		for (int j = 1; j < levels; ++j) {
+			// Goes to the start of the index node
+			// Gets the first byte of the node - size of the node 
 			tempPage = pages.get(nodePage-1);
 			startOffset = nodeOffset;
 			endOffset = startOffset + (1*8);
 			tempBinary = tempPage.substring(startOffset, endOffset);
 			int nodeSize = bc.binaryToInt(tempBinary);
 			
+			// Iterates through index node keys
 			boolean found = false;
 			for (int i = 0; i < nodeSize && found == false; ++i) {
+				// Gets the next key in the index node
 				startOffset = endOffset + (3*8);
 				endOffset = startOffset + (3*8);
 				tempBinary = tempPage.substring(startOffset, endOffset);
 				int key = bc.binaryToInt(tempBinary);
+				// Compares key with the query
 				if (query < key) found = true;
 			}
+			// If the query is more than all the keys then the next node is more than all keys
+			// else it is the node which has its address stored 3 bytes before the key
+			// then gets the address
 			if (found == false) startOffset = endOffset;
 			else startOffset -= (3*8);
 			endOffset = startOffset + (1*8);
@@ -160,13 +187,17 @@ public class BPTree {
 			tempBinary = tempPage.substring(startOffset, endOffset);
 			nodeOffset = bc.binaryToInt(tempBinary);
 		}
+		// Finish for loop once all index nodes have been traversed through
+		// Reached the data nodes
 		
+		// Gets the node size of the data node
 		tempPage = pages.get(nodePage-1);
 		startOffset = nodeOffset;
 		endOffset = startOffset + (1*8);
 		tempBinary = tempPage.substring(startOffset, endOffset);
 		int nodeSize = bc.binaryToInt(tempBinary);
 		
+		// Iterates through the keys in the data node until iterated through all keys or found a match
 		startOffset = endOffset;
 		endOffset = startOffset + (3*8);
 		tempBinary = tempPage.substring(startOffset, endOffset);
@@ -181,7 +212,9 @@ public class BPTree {
 				key = bc.binaryToInt(tempBinary);
 			}
 		}
+		// If a match is found store the addresses for all matched queries
 		if (found == true) {
+			// The next 3 bytes will be the address where the linked list of addresses are stores
 			startOffset = endOffset;
 			endOffset = startOffset + (1*8);
 			tempBinary = tempPage.substring(startOffset, endOffset);
@@ -192,13 +225,16 @@ public class BPTree {
 			tempBinary = tempPage.substring(startOffset, endOffset);
 			nodeOffset = bc.binaryToInt(tempBinary);
 			
+			// The linked lists first page is how many entries are in the linked list
 			tempPage = pages.get(nodePage-1);
 			startOffset = nodeOffset;
 			endOffset = startOffset + (1*8);
 			tempBinary = tempPage.substring(startOffset, endOffset);
 			int size = bc.binaryToInt(tempBinary);
 			
+			// Iterates through all the address stored by the linked list
 			for (int j = 0; j < size; ++j) {
+				// Gets the address in the linked list
 				startOffset = endOffset;
 				endOffset = startOffset + (1*8);
 				tempBinary = tempPage.substring(startOffset, endOffset);
@@ -209,6 +245,8 @@ public class BPTree {
 				tempBinary = tempPage.substring(startOffset, endOffset);
 				nodeOffset = bc.binaryToInt(tempBinary);
 				
+				// Iterates through pages in the heap file then stores the needed page
+				// Stores the offset into the page for the relevant record
 				String heapPage = "";
 				reader = new Reader("./heap." + pageSize);
 				for (int k = 0; k < nodePage; ++k) heapPage = reader.readToBytes(pageSize);
@@ -217,6 +255,7 @@ public class BPTree {
 			}
 		}
 		
+		// Prints all records matching the query
 		System.out.println("Items found:");
 		for (int i = 0; i < validRecords.size(); ++i) {
 			System.out.println(rth.getFormattedNameValue(getAllFieldsInRecord(validPages.get(i), validRecords.get(i))));

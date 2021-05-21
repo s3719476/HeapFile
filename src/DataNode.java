@@ -14,6 +14,9 @@ public class DataNode extends Node {
 	public DataNode() {}
 	
 	public void insert(KRid entry) {
+		// Iterates through the data node finding where the entry should belong
+		// This determines whether an exact match is found
+		// or if just its position is found meaning the data has a key that is not stored yet
 		boolean foundPosition = false;
 		boolean foundMatch = false;
 		int currEntryIdx = 0;
@@ -28,6 +31,8 @@ public class DataNode extends Node {
 			else ++currEntryIdx;
 		}
 		
+		// If an exact match is not found then add the new entry and key to the data node
+		// but if an exact match is found then add the new entry to the pre existing key
 		if (foundMatch == false) entries.add(currEntryIdx, entry);
 		else entries.get(currEntryIdx).addAddress(entry.getDataAddress());
 		setSize(getSize() + 1);
@@ -35,6 +40,7 @@ public class DataNode extends Node {
 	}
 	
 	public NodeKeySplit split() {
+		// Iterate through the keys to find the the appropriate point to split the node
 		boolean foundSplitPoint = false;
 		int splitPoint = (int)Math.ceil(getFanout()/2);
 		
@@ -44,6 +50,7 @@ public class DataNode extends Node {
 		}
 		if (foundSplitPoint == false) splitPoint = (int)Math.ceil(getFanout()/2);
 		
+		// Splits this nodes vector into two vectors using the point to split
 		Vector<KRid> splitEntries = new Vector<KRid>();
 		for (int i = entries.size()-1; i >= splitPoint; --i) {
 			splitEntries.add(0, entries.get(i));
@@ -51,6 +58,7 @@ public class DataNode extends Node {
 			setSize(getSize() - 1);
 		}
 		
+		// Creates a new node from the new split vector then assigns the prev and next nodes to maintain doubly linked list usage
 		DataNode newNode = new DataNode(splitEntries);
 		
 		if (nextNode != null) {
@@ -59,6 +67,7 @@ public class DataNode extends Node {
 		newNode.setPrevNode(this);
 		nextNode = newNode;
 		
+		// Returns the node and key needed for the above index node to use to point to the new split node
 		return new NodeKeySplit(newNode, splitEntries.get(0).getKey());
 	}
 	
