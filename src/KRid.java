@@ -28,10 +28,7 @@ public class KRid {
 	
 	public String getBinary() {
 		String binary = bc.intToBinaryStringToByteSize(addressAmount, 1);
-		System.out.println(key);
-		System.out.println(dataAddress.getMyLocation().getPage() + " " + dataAddress.getMyLocation().getOffset());
-		System.out.println(bc.intToBinaryStringToByteSize(dataAddress.getMyLocation().getPage(), 1) + " " + bc.intToBinaryStringToByteSize(dataAddress.getMyLocation().getOffset(), 2));
-		System.out.println();
+
 		binary += bc.intToBinaryStringToByteSize(dataAddress.getMyLocation().getPage(), 1);
 		binary += bc.intToBinaryStringToByteSize(dataAddress.getMyLocation().getOffset(), 2);
 		

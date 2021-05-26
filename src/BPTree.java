@@ -45,6 +45,8 @@ public class BPTree {
 		
 		int recordNum = 1;
 		
+		long timeMilliStart = System.currentTimeMillis();
+		
 		// Gets the first page and reads the file in given pages
 		int pageCounter = 0;
 		String page = reader.readToBytes(pageSize);
@@ -67,7 +69,7 @@ public class BPTree {
 			// Iterates through the directory offsets determined by amount of entries to get the location of each records
 			int recordsRead = 0;		
 			while (recordsRead < numRecords) {
-				System.out.println("Writing index for record: " + recordNum);
+//				System.out.println("Writing index for record: " + recordNum);
 				
 				// Gets the next entry which is the offset from the start of the page to get to the respective record
 				endSubStr = startSubStr;
@@ -105,7 +107,12 @@ public class BPTree {
 			}
 			page = reader.readToBytes(pageSize);
 		}
-		printTree();
+		
+		long timeMilliEnd = System.currentTimeMillis();
+		System.out.println("Amount of levels: " + level);
+		System.out.println("Time taken in milliseconds = " + (timeMilliEnd - timeMilliStart));
+		
+//		printTree();
 	}
 	
 	// Writes the tree
@@ -158,6 +165,8 @@ public class BPTree {
 			pages.add(page);
 			page = reader.readToBytes(pageSize);
 		}
+		
+		long timeMilliStart = System.currentTimeMillis();
 		
 		// Reads the first byte of the page which is the amount of the levels in the tree
 		String tempPage = pages.get(0);
@@ -339,6 +348,16 @@ public class BPTree {
 				currentDataEntryKey = bc.binaryToInt(tempBinary);
 			}
 		}
+		
+		long timeMilliEnd = System.currentTimeMillis();
+		
+		int validMatches = 0;
+		for (Map.Entry validPage : validRecordLocations.entrySet()) {
+			ArrayList<Integer> recordList = (ArrayList<Integer>)validPage.getValue();
+			validMatches += recordList.size();
+		}
+		System.out.println("Amount of matches: " + validMatches);
+		System.out.println("Time taken in milliseconds = " + (timeMilliEnd - timeMilliStart));
 		
 		// Prints all records matching the query
 		System.out.println("Items found");
