@@ -36,7 +36,6 @@ public class DataNode extends Node {
 		if (foundMatch == false) entries.add(currEntryIdx, entry);
 		else entries.get(currEntryIdx).addAddress(entry.getDataAddress());
 		setSize(getSize() + 1);
-		
 	}
 	
 	public NodeKeySplit split() {

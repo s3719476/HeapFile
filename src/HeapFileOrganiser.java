@@ -60,7 +60,7 @@ public class HeapFileOrganiser {
 			++recordAmount;
 			Record record = createRecord(line);
 			
-//			System.out.println("Converting to Heap Record: " + recordAmount);
+			System.out.println("Converting to Heap Record: " + recordAmount);
 			
 			// Gets the free bytes left in the page and bytes required to store the record
 			int freeBytes = page.getFreeBytes();

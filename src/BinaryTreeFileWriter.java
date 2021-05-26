@@ -14,7 +14,7 @@ public class BinaryTreeFileWriter {
 	private BinaryTreeFileWriter() {
 		currentFrontPageBinary = "";
 		currentBackPageBinary = "";
-		pageAmount = 1;
+		pageAmount = 0;
 	}
 	
 	public static BinaryTreeFileWriter getInstance() {

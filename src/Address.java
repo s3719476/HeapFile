@@ -4,7 +4,9 @@ public class Address {
 	private int page;	//1 byte
 	private Address nextAddress = null;
 	private Address previousAddress = null;
+	private Address myLocation = null;
 	private ByteConverter bc = ByteConverter.getInstance();
+	private BinaryTreeFileWriter btfw = BinaryTreeFileWriter.getInstance();
 	
 	public Address(int page, int offset) {
 		this.offset = offset;
@@ -42,6 +44,29 @@ public class Address {
 		binary += bc.intToBinaryStringToByteSize(offset, 2);
 		
 		return binary;
+	}
+	
+	public void writeDataAddress() {
+		if (nextAddress != null) nextAddress.writeDataAddress();
+		
+		myLocation = btfw.insertBack(getLLNodeBinary());
+	}
+	
+	private String getLLNodeBinary() {
+		String binary = getBinary();
+		
+		if (nextAddress == null) binary += bc.intToBinaryStringToByteSize(0, 3);
+		else {
+			Address nextAddressLocation = nextAddress.getMyLocation();
+			binary += bc.intToBinaryStringToByteSize(nextAddressLocation.getPage(), 1);
+			binary += bc.intToBinaryStringToByteSize(nextAddressLocation.getOffset(), 2);
+		}
+		
+		return binary;
+	}
+	
+	public Address getMyLocation() {
+		return myLocation;
 	}
 	
 }

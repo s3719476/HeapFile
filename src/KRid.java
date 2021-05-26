@@ -2,7 +2,7 @@
 // Essentially the linked list holding the data addresses
 public class KRid {
 	private int key;	// 3 bytes
-	private Address dataAddress;	// 3 bytes
+	private Address dataAddress;	// 6 bytes
 	private int addressAmount;
 	private Address myLocation = null;
 	private BinaryTreeFileWriter btfw = BinaryTreeFileWriter.getInstance();
@@ -28,13 +28,12 @@ public class KRid {
 	
 	public String getBinary() {
 		String binary = bc.intToBinaryStringToByteSize(addressAmount, 1);
-		
-		Address currentAddress = dataAddress;
-		while (currentAddress != null) {
-			binary += currentAddress.getBinary();
-			
-			currentAddress = currentAddress.getNextAddress();
-		}
+		System.out.println(key);
+		System.out.println(dataAddress.getMyLocation().getPage() + " " + dataAddress.getMyLocation().getOffset());
+		System.out.println(bc.intToBinaryStringToByteSize(dataAddress.getMyLocation().getPage(), 1) + " " + bc.intToBinaryStringToByteSize(dataAddress.getMyLocation().getOffset(), 2));
+		System.out.println();
+		binary += bc.intToBinaryStringToByteSize(dataAddress.getMyLocation().getPage(), 1);
+		binary += bc.intToBinaryStringToByteSize(dataAddress.getMyLocation().getOffset(), 2);
 		
 		return binary;
 	}
@@ -55,6 +54,8 @@ public class KRid {
 	}
 	
 	public void writeKRid() {
+		dataAddress.writeDataAddress();
+		
 		myLocation = btfw.insertBack(getBinary());
 	}
 	
