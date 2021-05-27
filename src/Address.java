@@ -52,7 +52,7 @@ public class Address {
 		myLocation = btfw.insertBack(getLLNodeBinary());
 	}
 	
-	private String getLLNodeBinary() {
+	public String getLLNodeBinary() {
 		String binary = getBinary();
 		
 		if (nextAddress == null) binary += bc.intToBinaryStringToByteSize(0, 3);
@@ -67,6 +67,10 @@ public class Address {
 	
 	public Address getMyLocation() {
 		return myLocation;
+	}
+	
+	public void setMyLocation(Address myLocation) {
+		this.myLocation = myLocation;
 	}
 	
 }

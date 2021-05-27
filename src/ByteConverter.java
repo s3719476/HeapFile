@@ -4,14 +4,6 @@ public class ByteConverter {
 	
 	private ByteConverter() {}
 	
-	public static ByteConverter getInstance() {
-		if (INSTANCE == null) {
-			INSTANCE = new ByteConverter();
-		}
-		
-		return INSTANCE;
-	}
-	
 	public String intToBinaryStringToNearestByteSize(int value) {
 		String binary = intToBinaryString(value);
 		String binaryWithByteSize = String.format(
@@ -81,5 +73,13 @@ public class ByteConverter {
 	
 	public byte binaryStringToByte(String binary) {
 		return Byte.parseByte(binary, 2);
+	}
+
+	public static ByteConverter getInstance() {
+		if (INSTANCE == null) {
+			INSTANCE = new ByteConverter();
+		}
+		
+		return INSTANCE;
 	}
 }

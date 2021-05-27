@@ -51,7 +51,13 @@ public class KRid {
 	}
 	
 	public void writeKRid() {
-		dataAddress.writeDataAddress();
+		Address llDataAddress = dataAddress;
+		while (llDataAddress.getNextAddress() != null) llDataAddress = llDataAddress.getNextAddress();
+		
+		for (int i = addressAmount; i > 0; --i) {
+			llDataAddress.setMyLocation(btfw.insertBack(llDataAddress.getLLNodeBinary()));
+			llDataAddress = llDataAddress.getPreviousAddress();
+		}
 		
 		myLocation = btfw.insertBack(getBinary());
 	}

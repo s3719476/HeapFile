@@ -43,7 +43,7 @@ public class BPTree {
 		level = 1;
 		reader = new Reader("./heap." + pageSize);
 		
-		int recordNum = 1;
+		int recordNum = 0;
 		
 		long timeMilliStart = System.currentTimeMillis();
 		
@@ -110,6 +110,7 @@ public class BPTree {
 		
 		long timeMilliEnd = System.currentTimeMillis();
 		System.out.println("Amount of levels: " + level);
+		System.out.println("Amount of records: " + recordNum);
 		System.out.println("Time taken in milliseconds = " + (timeMilliEnd - timeMilliStart));
 		
 //		printTree();
