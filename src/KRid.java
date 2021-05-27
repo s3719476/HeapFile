@@ -3,6 +3,7 @@
 public class KRid {
 	private int key;	// 3 bytes
 	private Address dataAddress;	// 6 bytes
+	private Address lastAddress;	// Store last node in linked list for efficiency purposes when adding a new entry to the end of the linked list so no iteration is needed to reach the end
 	private int addressAmount;
 	private Address myLocation = null;
 	private BinaryTreeFileWriter btfw = BinaryTreeFileWriter.getInstance();
@@ -11,6 +12,7 @@ public class KRid {
 	public KRid(int key, Address dataAddress) {
 		this.key = key;
 		this.dataAddress = dataAddress;
+		this.lastAddress = dataAddress;
 		this.addressAmount = 1;
 	}
 	
@@ -27,32 +29,26 @@ public class KRid {
 	}
 	
 	public String getBinary() {
-		String binary = bc.intToBinaryStringToByteSize(addressAmount, 1);
+		String binary = bc.intToBinaryStringToByteSize(addressAmount, 3);
 
-		binary += bc.intToBinaryStringToByteSize(dataAddress.getMyLocation().getPage(), 1);
-		binary += bc.intToBinaryStringToByteSize(dataAddress.getMyLocation().getOffset(), 2);
+		binary += bc.intToBinaryStringToByteSize(dataAddress.getMyLocation().getPage(), 3);
+		binary += bc.intToBinaryStringToByteSize(dataAddress.getMyLocation().getOffset(), 3);
 		
 		return binary;
 	}
 	
 	// Appends the address parameter to the end of the linked list
 	public void addAddress(Address newAddress) {
-		// Traverses through the addresses of the linked list until the next address is null (end of list)
-		Address currentAddress = this.dataAddress;
-		while (currentAddress.getNextAddress() != null) {
-			currentAddress = currentAddress.getNextAddress();
-		}
-		
 		// Adds the address to the end of the list and sorts the prev and next address to maintain doubly linked list structure
-		newAddress.setPreviousAddress(currentAddress);
-		currentAddress.setNextAddress(newAddress);
+		newAddress.setPreviousAddress(lastAddress);
+		lastAddress.setNextAddress(newAddress);
+		lastAddress = newAddress;
 		
 		++addressAmount;
 	}
 	
 	public void writeKRid() {
-		Address llDataAddress = dataAddress;
-		while (llDataAddress.getNextAddress() != null) llDataAddress = llDataAddress.getNextAddress();
+		Address llDataAddress = lastAddress;
 		
 		for (int i = addressAmount; i > 0; --i) {
 			llDataAddress.setMyLocation(btfw.insertBack(llDataAddress.getLLNodeBinary()));

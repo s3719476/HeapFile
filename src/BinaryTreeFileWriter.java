@@ -93,8 +93,13 @@ public class BinaryTreeFileWriter {
 	
 	// Bulk write all the pages
 	public void writeAllPages() {
+		int count = 0;
+		
 		for (String page : pages) {
+//			System.out.println("PRINTING PAGE: " + count + " " + page.length());
+//			System.out.println(page);
 			writer.writeData(page);
+			++count;
 		}
 	}
 	

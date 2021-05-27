@@ -1,7 +1,7 @@
 // Address ckass used as a node for the doubly linked list to address data
 public class Address {
 	private int offset;	// 2 byte
-	private int page;	//1 byte
+	private int page;	//2 byte
 	private Address nextAddress = null;
 	private Address previousAddress = null;
 	private Address myLocation = null;
@@ -40,8 +40,8 @@ public class Address {
 	public String getBinary() {
 		String binary = "";
 		
-		binary += bc.intToBinaryStringToByteSize(page, 1);
-		binary += bc.intToBinaryStringToByteSize(offset, 2);
+		binary += bc.intToBinaryStringToByteSize(page, 3);
+		binary += bc.intToBinaryStringToByteSize(offset, 3);
 		
 		return binary;
 	}
@@ -55,13 +55,13 @@ public class Address {
 	public String getLLNodeBinary() {
 		String binary = getBinary();
 		
-		if (nextAddress == null) binary += bc.intToBinaryStringToByteSize(0, 3);
+		if (nextAddress == null) binary += bc.intToBinaryStringToByteSize(0, 6);
 		else {
 			Address nextAddressLocation = nextAddress.getMyLocation();
-			binary += bc.intToBinaryStringToByteSize(nextAddressLocation.getPage(), 1);
-			binary += bc.intToBinaryStringToByteSize(nextAddressLocation.getOffset(), 2);
+			binary += bc.intToBinaryStringToByteSize(nextAddressLocation.getPage(), 3);
+			binary += bc.intToBinaryStringToByteSize(nextAddressLocation.getOffset(), 3);
 		}
-		
+
 		return binary;
 	}
 	

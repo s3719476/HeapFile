@@ -100,7 +100,7 @@ public class DataNode extends Node {
 		else binary += prevNode.getLocation().getBinary();
 		
 		if (nextNode == null) binary += new Address(0, 0).getBinary();
-		else binary += new Address(btfw.getPageAmount(), (btfw.getFrontFreeSpaceLocation() + binary.length() + (3*8))).getBinary();
+		else binary += new Address(btfw.getPageAmount(), (btfw.getFrontFreeSpaceLocation() + binary.length() + (6*8))).getBinary();
 		
 		return binary;
 	}
@@ -123,9 +123,9 @@ public class DataNode extends Node {
 		int bytesSize = 
 				1 +
 				(entries.size() * 3) +
-				(entries.size() * 3) +
-				3 +
-				3;
+				(entries.size() * 6) +
+				6 +
+				6;
 		return bytesSize;
 	}
 	

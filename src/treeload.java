@@ -1,7 +1,7 @@
 
 public abstract class treeload {
 	
-	private final static int fanout = 20;
+	private final static int fanout = 3;
 	
 	public static void main(String[] args) {
 		if (args.length == 1) {

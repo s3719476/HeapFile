@@ -120,7 +120,7 @@ public class IndexNode extends Node{
 	public int getBytesSize() {
 		int bytesSize = 
 				1 +
-				(branches.size() * 3) +
+				(branches.size() * 6) +
 				(keys.size() * 3);
 		return bytesSize;
 	}
