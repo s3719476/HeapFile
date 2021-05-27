@@ -69,7 +69,7 @@ public class BPTree {
 			// Iterates through the directory offsets determined by amount of entries to get the location of each records
 			int recordsRead = 0;		
 			while (recordsRead < numRecords) {
-//				System.out.println("Creating index for record: " + recordNum);
+				System.out.println("Creating index for record: " + recordNum);
 				
 				// Gets the next entry which is the offset from the start of the page to get to the respective record
 				endSubStr = startSubStr;
